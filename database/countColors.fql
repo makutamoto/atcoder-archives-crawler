@@ -1,0 +1,43 @@
+Query(
+  Lambda(
+    ["size", "after", "before"],
+    Let(
+      {
+        match: Match(Index("findRatesByDate"), [false]),
+        page: If(
+          Equals(Var("before"), null),
+          If(
+            Equals(Var("after"), null),
+            Paginate(Var("match"), Var("size")),
+            Paginate(Var("match"), Var("after"), Var("size"))
+          ),
+          Paginate(Var("match"), Var("before"), Var("size"))
+        )
+      },
+      {
+        after: Select("after", Var("page"), null),
+        before: Select("before", Var("page"), null),
+        data: Map(
+          Select("data", Var("page")),
+          Lambda(
+            ["date", "rates"],
+            Let(
+              { rates: Select("data", Get(Var("rates"))) },
+              {
+                date: Var("date"),
+                gray: Call(Function("countRate"), Var("rates"), 0, 400),
+                brown: Call(Function("countRate"), Var("rates"), 400, 800),
+                green: Call(Function("countRate"), Var("rates"), 800, 1200),
+                cyan: Call(Function("countRate"), Var("rates"), 1200, 1600),
+                blue: Call(Function("countRate"), Var("rates"), 1600, 2000),
+                yellow: Call(Function("countRate"), Var("rates"), 2000, 2400),
+                orange: Call(Function("countRate"), Var("rates"), 2400, 2800),
+                red: Call(Function("countRate"), Var("rates"), 2800, null)
+              }
+            )
+          )
+        )
+      }
+    )
+  )
+)

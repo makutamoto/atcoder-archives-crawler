@@ -1,0 +1,3 @@
+mutation ClearCrawlingFlag($id: ID!) {
+  clearRateCrawlingFlag(id: $id)
+}

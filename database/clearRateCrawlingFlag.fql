@@ -1,0 +1,11 @@
+Query(
+  Lambda(
+    ["id"],
+    Do(
+      Update(Ref(Collection("Rates"), Var("id")), {
+        data: { crawling: false }
+      }),
+      true
+    )
+  )
+)

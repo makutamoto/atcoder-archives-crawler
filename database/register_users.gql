@@ -1,0 +1,6 @@
+mutation RegisterUsers($id: ID!, $users: [UserInput!]!) {
+  appendUsersToRate(
+    id: $id
+    data: $users
+  )
+}

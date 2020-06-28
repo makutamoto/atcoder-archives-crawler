@@ -1,0 +1,17 @@
+Query(
+  Lambda(
+    ["rates", "left", "right"],
+    Count(
+      Filter(
+        Select("users", Var("rates")),
+        Lambda(
+          "user",
+          Let(
+            { rate: Select("rate", Var("user")) },
+            And(GTE(Var("rate"), Var("left")), LT(Var("rate"), Var("right")))
+          )
+        )
+      )
+    )
+  )
+)

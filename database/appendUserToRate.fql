@@ -1,0 +1,17 @@
+Query(
+  Lambda(
+    ["id", "data"],
+    Let(
+      {
+        ref: Ref(Collection("Rates"), Var("id")),
+        users: Select(["data", "users"], Get(Var("ref")), [])
+      },
+      Do(
+        Update(Var("ref"), {
+          data: { users: Append(Var("data"), Var("users")) }
+        }),
+        true
+      )
+    )
+  )
+)

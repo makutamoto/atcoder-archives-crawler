@@ -1,0 +1,22 @@
+type Header {
+    crawling: Boolean!
+    date: Date! @unique
+    gray: Int!
+    brown: Int!
+    green: Int!
+    cyan: Int!
+    blue: Int!
+    yellow: Int!
+    orange: Int!
+    red: Int!
+}
+
+type User {
+    date: Date!
+    name: String!
+    rate: Int!
+}
+
+type Query {
+    getLastHeader: Header @resolver
+}

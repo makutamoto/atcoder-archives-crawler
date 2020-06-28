@@ -1,0 +1,15 @@
+Query(
+  Lambda(
+    [],
+    Let(
+      {
+        data: Select(
+          ["data", 0, 1],
+          Paginate(Match(Index("getHeaders"), false), 1),
+          null
+        )
+      },
+      If(Equals(Var("data"), null), { data: null }, Get(Var("data")))
+    )
+  )
+)

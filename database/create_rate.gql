@@ -1,0 +1,8 @@
+mutation CreateRate($date: Date!) {
+  createRates(data: {
+    date: $date
+    users: []
+  }) {
+    _id
+  }
+}
