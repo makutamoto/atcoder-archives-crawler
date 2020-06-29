@@ -12,22 +12,32 @@ pub struct UserHistory {
     new_rating: u32,
     #[serde(rename = "ContestScreenName")]
     contest_screen_name: String,
+    #[serde(rename = "ContestName")]
+    contest_name: String,
     #[serde(rename = "EndTime")]
+    end_time: String,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct User {
+    rating: u32,
     end_time: String,
 }
 
 #[derive(Debug)]
 pub struct Contest {
+    name: String,
     date: String,
-    ranking: HashMap<String, u32>,
+    ranking: HashMap<String, User>,
 }
 
 impl UserHistory {
     #[cfg(test)]
-    fn new(is_rated: bool, new_rating: u32, contest_screen_name: &str, end_time: &str) -> UserHistory {
+    fn new(is_rated: bool, new_rating: u32, contest_screen_name: &str, contest_name: &str, end_time: &str) -> UserHistory {
         let contest_screen_name = String::from(contest_screen_name);
+        let contest_name = String::from(contest_name);
         let end_time = String::from(end_time);
-        UserHistory { is_rated, new_rating, contest_screen_name, end_time }
+        UserHistory { is_rated, new_rating, contest_screen_name, contest_name, end_time }
     }
 }
 
@@ -48,12 +58,17 @@ pub fn assign_user(contests: &mut HashMap<String, Contest>, name: &str, history:
     for contest_data in history {
         if contest_data.is_rated {
             let screen_name = contest_data.contest_screen_name.clone();
+            let contest_name = contest_data.contest_name.clone();
             if !contests.contains_key(&screen_name) {
                 let date = contest_data.end_time.clone();
-                contests.insert(screen_name.clone(), Contest{ date, ranking: HashMap::new() });
+                contests.insert(screen_name.clone(), Contest{ name: contest_name, date, ranking: HashMap::new() });
             }
             let contest = contests.get_mut(&screen_name).unwrap();
-            contest.ranking.insert(name.clone(), contest_data.new_rating);
+            let user = User{
+                rating: contest_data.new_rating,
+                end_time: contest_data.end_time.clone(),
+            };
+            contest.ranking.insert(name.clone(), user);
         }
     }
 }
@@ -84,20 +99,26 @@ mod tests {
     fn test_assign_user() {
         let mut contests = HashMap::new();
         let history1 = vec![
-            UserHistory::new(true, 9999, "abc001", "2016-09-04T22:50:00+09:00"),
-            UserHistory::new(false, 9999, "abc002", "2016-09-05T22:50:00+09:00"),
+            UserHistory::new(true, 9999, "abc001", "AtCoder Beginner Contest 001", "2016-09-04T22:50:00+09:00"),
+            UserHistory::new(false, 9999, "abc002", "AtCoder Beginner Contest 002", "2016-09-05T22:50:00+09:00"),
         ];
         let history2 = vec![
-            UserHistory::new(true, 9, "abc001", "2016-09-04T22:50:00+09:00"),
-            UserHistory::new(false, 9, "abc002", "2016-09-05T22:50:00+09:00" ),
+            UserHistory::new(true, 9, "abc001", "AtCoder Beginner Contest 001", "2016-09-04T22:50:00+09:00"),
+            UserHistory::new(false, 9, "abc002", "AtCoder Beginner Contest 002", "2016-09-05T22:50:00+09:00" ),
         ];
         assign_user(&mut contests, "tourist", &history1);
         assign_user(&mut contests, "Makutamoto", &history2);
         
         assert!(contests.contains_key("abc001"));
         assert!(!contests.contains_key("abc002"));
+        assert_eq!(contests["abc001"].name, "AtCoder Beginner Contest 001");
         assert_eq!(contests["abc001"].date, "2016-09-04T22:50:00+09:00");
-        assert_eq!(contests["abc001"].ranking, hashmap!{String::from("tourist") => 9999, String::from("Makutamoto") => 9});
+        assert_eq!(contests["abc001"].ranking,
+            hashmap!{
+                String::from("tourist") => User{ rating: 9999, end_time: String::from("2016-09-04T22:50:00+09:00") },
+                String::from("Makutamoto") => User{ rating: 9, end_time: String::from("2016-09-04T22:50:00+09:00") },
+            }
+        );
     }
 
     #[test]
