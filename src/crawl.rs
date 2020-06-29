@@ -3,9 +3,7 @@ use std::error::Error;
 use std::io::{self, Write};
 use std::{thread, time};
 
-// use chrono::Utc;
-
-use crate::util::{atcoder, faunadb};
+use crate::util::atcoder;
 use atcoder::Contest;
 
 lazy_static! {
@@ -22,36 +20,35 @@ fn take_break() {
     println!();
 }
 
-fn crawl_page(contests: &mut HashMap<String, Contest>, page: u32) -> Result<(), Box<dyn Error>> {
+fn crawl_page(contests: &mut HashMap<String, Contest>, page: u32) -> Result<bool, Box<dyn Error>> {
     let user_names = atcoder::get_user_list(page)?;
+    if user_names.is_empty() {
+        return Ok(false);
+    }
     println!("Got {} user(s).", user_names.len());
     take_break();
-    for name in user_names {
-        println!("Crawling {}...", name);
+    for (i, name) in user_names.iter().enumerate() {
+        println!("[{}: {}/{}] Crawling {}...", page, i + 1, user_names.len(), name);
         let history = atcoder::get_user_history(&name)?;
         atcoder::assign_user(contests, &name, &history);
         take_break();
     }
-    Ok(())
+    Ok(true)
 }
 
-// pub fn crawl() -> Result<(), Box<dyn Error>> {
-//     let today = Utc::today();
-//     // let id = faunadb::create_rate(&today)?;
-//     let mut page = 1;
-//     loop {
-//         println!("Crawling a page {}...", page);
-//         // let users = atcoder::get_rates(page)?;
-//         println!("Got {} users.", users.len());
-//         if users.is_empty() {
-//             break;
-//         }
-//         // faunadb::register_user(&id, users)?
-//         page += 1;
-//     }
-//     // faunadb::clear_crawling_flag(&id)?;
-//     Ok(())
-// }
+pub fn crawl(contests: &mut HashMap<String, Contest>) -> Result<(), Box<dyn Error>> {
+    let mut page = 1;
+    loop {
+        println!("Crawling a page {}...", page);
+        let next = crawl_page(contests, page)?;
+        take_break();
+        if !next {
+            break;
+        }
+        page += 1;
+    }
+    Ok(())
+}
 
 #[cfg(test)]
 mod tests {
@@ -67,7 +64,12 @@ mod tests {
     #[test]
     fn test_crawl_page() {
         let mut contests = HashMap::new();
-        crawl_page(&mut contests, 1);
+        crawl_page(&mut contests, 1).unwrap();
         println!("{:?}", contests);
+    }
+
+    #[test]
+    fn test_crawl() {
+
     }
 }
