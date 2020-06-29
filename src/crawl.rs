@@ -60,16 +60,4 @@ mod tests {
         take_break();
         assert_eq!(now.elapsed().as_secs(), 10);
     }
-
-    #[test]
-    fn test_crawl_page() {
-        let mut contests = HashMap::new();
-        crawl_page(&mut contests, 1).unwrap();
-        println!("{:?}", contests);
-    }
-
-    #[test]
-    fn test_crawl() {
-
-    }
 }
