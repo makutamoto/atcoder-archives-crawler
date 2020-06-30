@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use scraper::{ Html, Selector };
 use serde::Deserialize;
@@ -28,7 +28,7 @@ pub struct User {
 pub struct Contest {
     name: String,
     date: String,
-    ranking: HashMap<String, User>,
+    ranking: BTreeMap<String, User>,
 }
 
 impl UserHistory {
@@ -53,7 +53,7 @@ pub fn get_user_history(name: &str) -> Result<Vec<UserHistory>, Box<dyn Error>> 
     Ok(history)
 }
 
-pub fn assign_user(contests: &mut HashMap<String, Contest>, name: &str, history: &Vec<UserHistory>) {
+pub fn assign_user(contests: &mut BTreeMap<String, Contest>, name: &str, history: &Vec<UserHistory>) {
     let name = String::from(name);
     for contest_data in history {
         if contest_data.is_rated {
@@ -61,7 +61,7 @@ pub fn assign_user(contests: &mut HashMap<String, Contest>, name: &str, history:
             let contest_name = contest_data.contest_name.clone();
             if !contests.contains_key(&screen_name) {
                 let date = contest_data.end_time.clone();
-                contests.insert(screen_name.clone(), Contest{ name: contest_name, date, ranking: HashMap::new() });
+                contests.insert(screen_name.clone(), Contest{ name: contest_name, date, ranking: BTreeMap::new() });
             }
             let contest = contests.get_mut(&screen_name).unwrap();
             let user = User{
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn test_assign_user() {
-        let mut contests = HashMap::new();
+        let mut contests = BTreeMap::new();
         let history1 = vec![
             UserHistory::new(true, 9999, "abc001", "AtCoder Beginner Contest 001", "2016-09-04T22:50:00+09:00"),
             UserHistory::new(false, 9999, "abc002", "AtCoder Beginner Contest 002", "2016-09-05T22:50:00+09:00"),
@@ -114,7 +114,7 @@ mod tests {
         assert_eq!(contests["abc001"].name, "AtCoder Beginner Contest 001");
         assert_eq!(contests["abc001"].date, "2016-09-04T22:50:00+09:00");
         assert_eq!(contests["abc001"].ranking,
-            hashmap!{
+            btreemap!{
                 String::from("tourist") => User{ rating: 9999, end_time: String::from("2016-09-04T22:50:00+09:00") },
                 String::from("Makutamoto") => User{ rating: 9, end_time: String::from("2016-09-04T22:50:00+09:00") },
             }

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::io::{self, Write};
 use std::{thread, time};
@@ -20,7 +20,7 @@ fn take_break() {
     println!();
 }
 
-fn crawl_page(contests: &mut HashMap<String, Contest>, page: u32) -> Result<bool, Box<dyn Error>> {
+fn crawl_page(contests: &mut BTreeMap<String, Contest>, page: u32) -> Result<bool, Box<dyn Error>> {
     let user_names = atcoder::get_user_list(page)?;
     if user_names.is_empty() {
         return Ok(false);
@@ -36,7 +36,7 @@ fn crawl_page(contests: &mut HashMap<String, Contest>, page: u32) -> Result<bool
     Ok(true)
 }
 
-pub fn crawl(contests: &mut HashMap<String, Contest>) -> Result<(), Box<dyn Error>> {
+pub fn crawl(contests: &mut BTreeMap<String, Contest>) -> Result<(), Box<dyn Error>> {
     let mut page = 1;
     loop {
         println!("Crawling a page {}...", page);
@@ -48,6 +48,13 @@ pub fn crawl(contests: &mut HashMap<String, Contest>) -> Result<(), Box<dyn Erro
         page += 1;
     }
     Ok(())
+}
+
+pub fn accumulate(contests: BTreeMap<String, Contest>) {
+    
+    for contest in contests.iter().rev() {
+
+    }
 }
 
 #[cfg(test)]
