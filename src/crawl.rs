@@ -51,9 +51,10 @@ pub fn crawl(contests: &mut BTreeMap<String, Contest>) -> Result<(), Box<dyn Err
 }
 
 pub fn accumulate(contests: BTreeMap<String, Contest>) {
-    
-    for contest in contests.iter().rev() {
-
+    let iter = contests.iter().rev();
+    let prev = &iter.next();
+    for contest in iter {
+        println!("{}, {}", prev.name, contest.name);
     }
 }
 
@@ -66,5 +67,15 @@ mod tests {
         let now = time::Instant::now();
         take_break();
         assert_eq!(now.elapsed().as_secs(), 10);
+    }
+
+    #[test]
+    fn test_accumulate() {
+        let contests = BTreeMap::new();
+        contests.insert("abc001", Contest {
+            name: String,
+            date: String,
+            ranking: BTreeMap<String, User>,
+        });
     }
 }
